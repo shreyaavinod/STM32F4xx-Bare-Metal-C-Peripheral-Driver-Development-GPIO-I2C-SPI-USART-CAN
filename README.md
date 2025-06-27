@@ -33,8 +33,7 @@ Currently, the project implements **GPIO drivers** and will be extended to inclu
 - Reference Manual & Datasheet for STM32F446xx  
 
 ---
-
-##Technical Skills
+## Technical Skills
 
 🛠 Embedded Systems    | Bare-metal programming, register-level control  
 ⚙️ Microcontroller     | STM32F4 architecture, memory-mapped peripherals  
