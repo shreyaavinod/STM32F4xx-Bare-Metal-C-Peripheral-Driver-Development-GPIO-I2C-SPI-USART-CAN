@@ -34,28 +34,13 @@ Currently, the project implements **GPIO drivers** and will be extended to inclu
 
 ---
 
-## 💡 Technical Skills Involved
-|-----------------------|------------------|
-|  Embedded Systems    | Bare-metal programming, register-level control |
-|  Microcontroller     | STM32F4 architecture, memory-mapped peripherals |
-|  Bitwise Operations  | Masking, shifting, toggling bits in registers |
+##Technical Skills
+
+🛠 Embedded Systems    | Bare-metal programming, register-level control  
+⚙️ Microcontroller     | STM32F4 architecture, memory-mapped peripherals  
+🧠 Bitwise Operations  | Masking, shifting, toggling bits in registers  
 
 
----
 
-## 📁 Project Structure
 
-STM32F4xx_DRIVER_DEV/
-├── drivers/
-│ ├── inc/
-│ │ ├── stm32f446xx.h # Register definitions
-│ │ └── stm32f446xx_gpio_driver.h # GPIO driver API
-│ └── src/
-│ └── stm32f446xx_gpio_driver.c # GPIO driver logic
-├── Startup/
-│ └── startup_stm32f446retx.s # Startup file
-├── STM32F446RETX_FLASH.ld # Linker script
-├── STM32F446RETX_RAM.ld # RAM mapping
-├── .gitignore
-├── .project, .cproject (optional)
-└── README.md
+
