@@ -109,11 +109,13 @@ void GPIO_PeriClockControl(Gpio_struct *pGPIOx, uint8_t EnOrDis)
 
 void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 {
+	uint32_t temp;
+	uint32_t mask;
 	if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode < PIN_MODE_ANALOG)
 	{
 			//1. MODER
-			uint32_t temp= pGpioHandle->GPIO_PinConfig.GPIO_PinMode << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
-			uint32_t mask= (0x3) << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+			temp= pGpioHandle->GPIO_PinConfig.GPIO_PinMode << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+			mask= (0x3) << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
 
 			pGpioHandle->pGPIOx->MODER &=~mask;
 			pGpioHandle->pGPIOx->MODER |=temp;
@@ -161,12 +163,61 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 					pGpioHandle->pGPIOx->AFR[0] |=temp;
 
 				}
+				temp=0;
+				mask=0;
 
 			}
 	}
 	else
 	{
+		// SET PIN IN INPUT MODE
+		temp= (PIN_MODE_IN)<<(2*(pGpioHandle->GPIO_PinConfig.GPIO_PinNumber));
+		mask= 0x3<<(2*pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+		pGpioHandle->pGPIOx->MODER &=~(mask);
+		pGpioHandle->pGPIOx->MODER |=temp;
+		temp=0;
+		mask=0;
+
 		//interrupts
+		if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode==PIN_MODE_RT)
+		{
+
+			EXTI->RTSR|=(0x1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->FTSR&=~(0X1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+
+		}
+		else if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode==PIN_MODE_FT)
+		{
+			EXTI->FTSR|=(0x1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR&=~(0X1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+
+		}
+		else if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode==PIN_MODE_RFT)
+		{
+			EXTI->FTSR|=(0x1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+			EXTI->RTSR|=(0X1<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+
+		}
+
+		//SYSCFG EXTI
+		//1. syscfg peripheral clk enable
+		//2. syscfg exti
+		SYSCFG_PCLK_EN();
+
+		uint16_t portnum= BASEADDR_TO_PORTNUM(pGpioHandle->pGPIOx);
+		uint8_t regselect1= pGpioHandle->GPIO_PinConfig.GPIO_PinNumber/4;
+		uint8_t pinselect1=pGpioHandle->GPIO_PinConfig.GPIO_PinNumber%4;
+		temp= portnum<<(pinselect1*4);
+		mask=0xF<<(pinselect1*4);
+		SYSCFG->EXTICR[regselect1]&=~(mask);
+		SYSCFG->EXTICR[regselect1]|=temp;
+		temp=0;
+		mask=0;
+
+		//TO ACCEPT INTERRUPT IN THAT PIN
+		EXTI->IMR|=(0X1)<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber;
+
+
 	}
 
 
@@ -248,6 +299,23 @@ void GPIO_ToggleOutputPin(Gpio_struct *pGPIOx,uint8_t PinNumber){
 //4. IRQ HANDLER AND CONFIG
 
 void GPIO_IRQConifg(uint8_t IRQNum, uint8_t IRQPriority,uint8_t EnOrDis ){
+
+	if (EnOrDis==ENABLE)
+	{
+		if (IRQNum <=31)
+		{
+			NVIC_ISER0|=(1<<IRQNum);
+
+		}else if (IRQNum>31 && IRQNum<64)
+
+		{
+			NVIC_ISER1|=(1<<IRQNum%32);
+		}else if (IRQNum> 64 && IRQNum< 96)
+		{
+			NVIC_ISER3|=(1<<IRQNum%64);
+		}
+
+	}
 
 }
 void GPIO_IRQHandler(uint8_t PinNumber){

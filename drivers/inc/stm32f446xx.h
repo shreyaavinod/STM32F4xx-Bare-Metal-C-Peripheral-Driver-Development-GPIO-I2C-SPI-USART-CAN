@@ -9,8 +9,22 @@
 
 #ifndef DRIVERS_INC_STM32F446XX_H_
 #define DRIVERS_INC_STM32F446XX_H_
-
 #define __vo volatile
+
+//ARM CORTEX M4 PROCESSOR NVIC SPECIFIC ADDRESSES :
+#define NVIC_ISER0      ((__vo uint32_t*) 0xE000E100)
+#define NVIC_ISER0		((__vo uint32_t*) 0xE000E104)
+#define NVIC_ISER0		((__vo uint32_t*) 0xE000E108)
+#define NVIC_ISER0		((__vo uint32_t*) 0xE000E10C)
+
+#define NVIC_ICER0      ((__vo uint32_t*) 0xE000E180)
+#define NVIC_ICER0		((__vo uint32_t*) 0xE000E184)
+#define NVIC_ICER0		((__vo uint32_t*) 0xE000E188)
+#define NVIC_ICER0		((__vo uint32_t*) 0xE000E18C)
+
+
+
+
 //1. DEFINING BASE ADDRESSES OF FLASH AND SRAM
 #define FLASH_BASEADDR			 0x08000000U
 #define SYS_MEM_BASEADDR		 0x1FFF0000U
@@ -120,8 +134,27 @@ typedef struct {
 
 
 }RCC_struct;
+typedef struct {
+	uint32_t IMR;
+	uint32_t EMR;
+	uint32_t RTSR;
+	uint32_t FTSR;
+	uint32_t SWIER;
+	uint32_t PR;
+
+}EXTI_struct;
 
 
+typedef struct {
+	__vo int32_t MEMRMP;
+	__vo uint32_t PMC;
+	__vo uint32_t EXTICR[4];
+	uint32_t RESERVED0[2];
+    __vo uint32_t CMPCR;
+	uint32_t RESERVED1[3];
+	__vo uint32_t CFGR;
+
+}SYSCFG_struct;
 
 
 /* Creating the macros for peripheral base addresses typecasted to (Gpio_struct*) */
@@ -135,6 +168,8 @@ typedef struct {
 #define GPIOG     ((Gpio_struct *)GPIOG_PERIPH_BASEADDR)
 #define GPIOH     ((Gpio_struct *)GPIOH_PERIPH_BASEADDR)
 #define RCC		  ((RCC_struct *)RCC_PERIPH_BASEADDR)
+#define EXTI 	  ((EXTI_struct*)EXTI_BASEADDR)
+#define SYSCFG    ((SYSCFG_struct*)SYSCFG_BASEADDR)
 
 
 /*clock enabling macros
@@ -220,6 +255,17 @@ typedef struct {
 #define GPIOF_REG_RST()   do {RCC->RCC_AHB1RSTR |= (1<<5); RCC->RCC_AHB1RSTR &= ~(1<<5);}while (0)
 #define GPIOG_REG_RST()   do {RCC->RCC_AHB1RSTR |= (1<<6); RCC->RCC_AHB1RSTR &= ~(1<<6);}while (0)
 #define GPIOH_REG_RST()   do {RCC->RCC_AHB1RSTR |= (1<<7); RCC->RCC_AHB1RSTR &= ~(1<<7);}while (0)
+
+
+//PORTNUM
+#define BASEADDR_TO_PORTNUM(GPIOA)  0
+#define BASEADDR_TO_PORTNUM(GPIOB)  1
+#define BASEADDR_TO_PORTNUM(GPIOC)  2
+#define BASEADDR_TO_PORTNUM(GPIOD)  3
+#define BASEADDR_TO_PORTNUM(GPIOE)  4
+#define BASEADDR_TO_PORTNUM(GPIOF)  5
+#define BASEADDR_TO_PORTNUM(GPIOG)  6
+#define BASEADDR_TO_PORTNUM(GPIOH)  7
 
 
 

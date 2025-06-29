@@ -69,8 +69,9 @@ typedef struct {
 
 //uint8_t GPIO_PinOPType ;
 //@GPIO_PinOPType
-#define OTYPE_OPEND			0
-#define OTYPE_PP			1
+#define OTYPE_PP			0
+#define OTYPE_OD			1
+
 
 //uint8_t GPIO_PinPuPdControl ;
 //@GPIO_PinPUPD
