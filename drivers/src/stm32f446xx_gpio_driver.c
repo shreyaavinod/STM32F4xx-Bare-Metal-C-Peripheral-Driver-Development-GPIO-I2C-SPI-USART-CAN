@@ -109,6 +109,7 @@ void GPIO_PeriClockControl(Gpio_struct *pGPIOx, uint8_t EnOrDis)
 
 void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 {
+	GPIO_PeriClockControl(pGpioHandle->pGPIOx, ENABLE);
 	uint32_t temp;
 	uint32_t mask;
 	if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode < PIN_MODE_ANALOG)
@@ -168,7 +169,7 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 
 			}
 	}
-	else
+	/*else
 	{
 		// SET PIN IN INPUT MODE
 		temp= (PIN_MODE_IN)<<(2*(pGpioHandle->GPIO_PinConfig.GPIO_PinNumber));
@@ -218,7 +219,7 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 		EXTI->IMR|=(0X1)<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber;
 
 
-	}
+	}*/
 
 
 }
@@ -296,6 +297,8 @@ void GPIO_ToggleOutputPin(Gpio_struct *pGPIOx,uint8_t PinNumber){
 
 }
 
+
+/*
 //4. IRQ HANDLER AND CONFIG
 
 void GPIO_IRQConifg(uint8_t IRQNum, uint8_t IRQPriority,uint8_t EnOrDis ){
@@ -322,6 +325,8 @@ void GPIO_IRQHandler(uint8_t PinNumber){
 
 }
 
+
+*/
 
 
 

@@ -84,6 +84,26 @@ typedef struct {
 //uint8_t GPIO_PinAlternateFunctionMode ;
 //@GPIO_PinAF
 
+#define GPIO_AF_0			0
+#define GPIO_AF_1			1
+#define GPIO_AF_2			2
+#define GPIO_AF_3			3
+#define GPIO_AF_4			4
+#define GPIO_AF_5			5
+#define GPIO_AF_6			6
+#define GPIO_AF_7			7
+#define GPIO_AF_8			8
+#define GPIO_AF_9			9
+#define GPIO_AF_10			10
+#define GPIO_AF_11			11
+#define GPIO_AF_12			12
+#define GPIO_AF_13			13
+#define GPIO_AF_14			14
+#define GPIO_AF_15			15
+
+
+
+
 
 /*APIs PROVIDED BY GPIO DRIVER
  * init
@@ -110,6 +130,8 @@ void GPIO_PeriClockControl(Gpio_struct *pGPIOx, uint8_t EnOrDis);
 
 void GPIO_Init(Gpio_Handle_t *pGpioHandle);
 void GPIO_Deinit(Gpio_struct *pGPIOx);
+
+
 
 //Data Read and Write
 

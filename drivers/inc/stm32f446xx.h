@@ -11,16 +11,16 @@
 #define DRIVERS_INC_STM32F446XX_H_
 #define __vo volatile
 
-//ARM CORTEX M4 PROCESSOR NVIC SPECIFIC ADDRESSES :
-#define NVIC_ISER0      ((__vo uint32_t*) 0xE000E100)
-#define NVIC_ISER0		((__vo uint32_t*) 0xE000E104)
-#define NVIC_ISER0		((__vo uint32_t*) 0xE000E108)
-#define NVIC_ISER0		((__vo uint32_t*) 0xE000E10C)
-
-#define NVIC_ICER0      ((__vo uint32_t*) 0xE000E180)
-#define NVIC_ICER0		((__vo uint32_t*) 0xE000E184)
-#define NVIC_ICER0		((__vo uint32_t*) 0xE000E188)
-#define NVIC_ICER0		((__vo uint32_t*) 0xE000E18C)
+////ARM CORTEX M4 PROCESSOR NVIC SPECIFIC ADDRESSES :
+//#define NVIC_ISER0      ((__vo uint32_t*) 0xE000E100)
+//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E104)
+//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E108)
+//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E10C)
+//
+//#define NVIC_ICER0      ((__vo uint32_t*) 0xE000E180)
+//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E184)
+//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E188)
+//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E18C)
 
 
 
@@ -95,6 +95,23 @@ typedef struct {
 
 } Gpio_struct;
 
+
+typedef struct {
+
+		__vo uint16_t CR1 ;
+		__vo uint16_t CR2;
+		__vo uint16_t SR;
+		__vo uint16_t DR;
+		__vo uint16_t CRCPR;
+		__vo uint16_t RXCRCCR;
+		__vo uint16_t TXCRCR;
+		__vo uint16_t I2SCFGR;
+		__vo uint16_t I2SPR;
+
+
+
+}SPI_struct;
+
 /* RCC PERIPHERAL REGISTER STRUCT */
 typedef struct {
 	__vo uint32_t RCC_CR;
@@ -134,6 +151,7 @@ typedef struct {
 
 
 }RCC_struct;
+
 typedef struct {
 	uint32_t IMR;
 	uint32_t EMR;
@@ -170,6 +188,10 @@ typedef struct {
 #define RCC		  ((RCC_struct *)RCC_PERIPH_BASEADDR)
 #define EXTI 	  ((EXTI_struct*)EXTI_BASEADDR)
 #define SYSCFG    ((SYSCFG_struct*)SYSCFG_BASEADDR)
+#define SPI1	  ((SPI_struct*)SPI1_PERIPH_BASEADDR)
+#define SPI2	  ((SPI_struct*)SPI2_PERIPH_BASEADDR)
+#define SPI3	  ((SPI_struct*)SPI3_PERIPH_BASEADDR)
+#define SPI4	  ((SPI_struct*)SPI4_PERIPH_BASEADDR)
 
 
 /*clock enabling macros
@@ -257,15 +279,15 @@ typedef struct {
 #define GPIOH_REG_RST()   do {RCC->RCC_AHB1RSTR |= (1<<7); RCC->RCC_AHB1RSTR &= ~(1<<7);}while (0)
 
 
-//PORTNUM
-#define BASEADDR_TO_PORTNUM(GPIOA)  0
-#define BASEADDR_TO_PORTNUM(GPIOB)  1
-#define BASEADDR_TO_PORTNUM(GPIOC)  2
-#define BASEADDR_TO_PORTNUM(GPIOD)  3
-#define BASEADDR_TO_PORTNUM(GPIOE)  4
-#define BASEADDR_TO_PORTNUM(GPIOF)  5
-#define BASEADDR_TO_PORTNUM(GPIOG)  6
-#define BASEADDR_TO_PORTNUM(GPIOH)  7
+////PORTNUM
+//#define BASEADDR_TO_PORTNUM(GPIOA)  0
+//#define BASEADDR_TO_PORTNUM(GPIOB)  1
+//#define BASEADDR_TO_PORTNUM(GPIOC)  2
+//#define BASEADDR_TO_PORTNUM(GPIOD)  3
+//#define BASEADDR_TO_PORTNUM(GPIOE)  4
+//#define BASEADDR_TO_PORTNUM(GPIOF)  5
+//#define BASEADDR_TO_PORTNUM(GPIOG)  6
+//#define BASEADDR_TO_PORTNUM(GPIOH)  7
 
 
 
@@ -274,6 +296,12 @@ typedef struct {
 #define DISABLE 0
 #define GPIO_PIN_SET ENABLE
 #define GPIO_PI_RESET DISABLE
+#define SET   ENABLE
+#define RESET DISABLE
+#define FLAG_RESET DISABLE
+#define FLAG_SET ENABLE
+
+
 
 
 
