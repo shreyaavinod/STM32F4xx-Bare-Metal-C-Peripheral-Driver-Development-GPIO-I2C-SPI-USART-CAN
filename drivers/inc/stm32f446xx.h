@@ -11,16 +11,19 @@
 #define DRIVERS_INC_STM32F446XX_H_
 #define __vo volatile
 
-////ARM CORTEX M4 PROCESSOR NVIC SPECIFIC ADDRESSES :
-//#define NVIC_ISER0      ((__vo uint32_t*) 0xE000E100)
-//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E104)
-//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E108)
-//#define NVIC_ISER0		((__vo uint32_t*) 0xE000E10C)
-//
-//#define NVIC_ICER0      ((__vo uint32_t*) 0xE000E180)
-//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E184)
-//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E188)
-//#define NVIC_ICER0		((__vo uint32_t*) 0xE000E18C)
+//irq number MACROS
+#define IRQ_NUM_EXTI0  	6
+#define IRQ_NUM_EXTI1  	7
+#define IRQ_NUM_EXTI2  	8
+#define IRQ_NUM_EXTI3  	9
+#define IRQ_NUM_EXTI4 	10
+#define IRQ_NUM_EXTI9_5 	23
+#define IRQ_NUM_EXTI15_10 	40
+#define IRQ_NUM_SPI1  	35
+#define IRQ_NUM_SPI2	36
+#define IRQ_NUM_SPI3 	51
+#define IRQ_NUM_SPI4    84
+
 
 
 
@@ -35,10 +38,10 @@
 
 //2. DEFINING BASE ADDRESSES OF BUS DOMAINS
 
-#define PERIPH_BASEADDR		0X40000000U
+#define PERIPH_BASEADDR		    0X40000000U
 #define APB1_PERIPH_BASEADDR	PERIPH_BASEADDR
 #define APB2_PERIPH_BASEADDR	0x40010000U
-#define AHB1_PERIPH_BASEADDR   0x40020000U
+#define AHB1_PERIPH_BASEADDR    0x40020000U
 #define AHB2_PERIPH_BASEADDR	0x50000000U
 
 //3. DEFINING BASE ADDRESSES OF PERIPHERALS IN AHB1 BUS
@@ -72,6 +75,7 @@
 #define SPI4_PERIPH_BASEADDR	(APB2_PERIPH_BASEADDR + 0x3400)
 #define SYSCFG_BASEADDR			(APB2_PERIPH_BASEADDR + 0x3800)
 #define EXTI_BASEADDR  			(APB2_PERIPH_BASEADDR + 0x3C00)
+#define NVIC_BASE_ADDR			0xE000E100U
 
 //6. GPIO PERIPHERAL REGISTERS STRUCTURE DEFINITION
 
@@ -164,7 +168,7 @@ typedef struct {
 
 
 typedef struct {
-	__vo int32_t MEMRMP;
+	__vo uint32_t MEMRMP;
 	__vo uint32_t PMC;
 	__vo uint32_t EXTICR[4];
 	uint32_t RESERVED0[2];
@@ -173,6 +177,23 @@ typedef struct {
 	__vo uint32_t CFGR;
 
 }SYSCFG_struct;
+
+typedef struct {
+	__vo uint32_t ISER[8];
+	uint32_t RESERVED0[24];
+	__vo uint32_t ICER[8];
+	uint32_t RESERVED1[24];
+	__vo uint32_t ISPR[8];
+	uint32_t RESERVED2[24];
+	__vo uint32_t ICPR[8];
+	uint32_t RESERVED3[24];
+	__vo uint32_t IABR[8];
+	uint32_t RESERVED4[56];
+	__vo uint32_t IPR[60];
+	__vo uint32_t STIR;
+
+} NVIC_struct;
+
 
 
 /* Creating the macros for peripheral base addresses typecasted to (Gpio_struct*) */
@@ -188,6 +209,7 @@ typedef struct {
 #define RCC		  ((RCC_struct *)RCC_PERIPH_BASEADDR)
 #define EXTI 	  ((EXTI_struct*)EXTI_BASEADDR)
 #define SYSCFG    ((SYSCFG_struct*)SYSCFG_BASEADDR)
+#define NVIC 	  ((NVIC_struct*)NVIC_BASE_ADDR)
 #define SPI1	  ((SPI_struct*)SPI1_PERIPH_BASEADDR)
 #define SPI2	  ((SPI_struct*)SPI2_PERIPH_BASEADDR)
 #define SPI3	  ((SPI_struct*)SPI3_PERIPH_BASEADDR)
@@ -280,14 +302,14 @@ typedef struct {
 
 
 ////PORTNUM
-//#define BASEADDR_TO_PORTNUM(GPIOA)  0
-//#define BASEADDR_TO_PORTNUM(GPIOB)  1
-//#define BASEADDR_TO_PORTNUM(GPIOC)  2
-//#define BASEADDR_TO_PORTNUM(GPIOD)  3
-//#define BASEADDR_TO_PORTNUM(GPIOE)  4
-//#define BASEADDR_TO_PORTNUM(GPIOF)  5
-//#define BASEADDR_TO_PORTNUM(GPIOG)  6
-//#define BASEADDR_TO_PORTNUM(GPIOH)  7
+#define BASEADDR_TO_PORTNUM(x)		((x==GPIOA)?0:  \
+									(x==GPIOB)?1:  \
+									(x==GPIOC)?2:  \
+									(x==GPIOD)?3:  \
+									(x==GPIOE)?4:  \
+									(x==GPIOF)?5:  \
+									(x==GPIOG)?6:  \
+									(x==GPIOH)?7:-1  )
 
 
 

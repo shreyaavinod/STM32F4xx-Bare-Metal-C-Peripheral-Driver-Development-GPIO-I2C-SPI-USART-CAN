@@ -261,11 +261,13 @@ void SPI_Receivedata(SPI_struct *pSPIx, uint8_t *pRXBuffer, uint32_t len)
 
 // SPI TRANSMIT AND RECEIVE BY INTERRUPT /NON BLOCKING
 
-void SPI_IRQInterruptConfig()
+void SPI_IRQInterruptConfig(uint8_t IRQNum, uint8_t EnOrDis)
+
 {
 
 }
-void SPI_IRQPriorityConfig()
+void SPI_IRQPriorityConfig(uint8_t IRQNum, uint32_t IRQPriority)
+
 {
 
 }

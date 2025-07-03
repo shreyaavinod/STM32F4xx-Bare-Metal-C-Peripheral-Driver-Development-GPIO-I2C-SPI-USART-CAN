@@ -169,7 +169,7 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 
 			}
 	}
-	/*else
+	else
 	{
 		// SET PIN IN INPUT MODE
 		temp= (PIN_MODE_IN)<<(2*(pGpioHandle->GPIO_PinConfig.GPIO_PinNumber));
@@ -178,6 +178,14 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 		pGpioHandle->pGPIOx->MODER |=temp;
 		temp=0;
 		mask=0;
+
+		//3. PUPDR
+					temp= pGpioHandle->GPIO_PinConfig.GPIO_PinPuPdControl << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+					mask= (0x3) << (2* pGpioHandle->GPIO_PinConfig.GPIO_PinNumber);
+					pGpioHandle->pGPIOx->PUPDR &=~mask;
+					pGpioHandle->pGPIOx->PUPDR |=temp;
+					temp=0;
+					mask=0;
 
 		//interrupts
 		if (pGpioHandle->GPIO_PinConfig.GPIO_PinMode==PIN_MODE_RT)
@@ -205,7 +213,7 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 		//2. syscfg exti
 		SYSCFG_PCLK_EN();
 
-		uint16_t portnum= BASEADDR_TO_PORTNUM(pGpioHandle->pGPIOx);
+		uint16_t portnum = BASEADDR_TO_PORTNUM(pGpioHandle->pGPIOx);
 		uint8_t regselect1= pGpioHandle->GPIO_PinConfig.GPIO_PinNumber/4;
 		uint8_t pinselect1=pGpioHandle->GPIO_PinConfig.GPIO_PinNumber%4;
 		temp= portnum<<(pinselect1*4);
@@ -219,7 +227,7 @@ void GPIO_Init(Gpio_Handle_t *pGpioHandle)
 		EXTI->IMR|=(0X1)<<pGpioHandle->GPIO_PinConfig.GPIO_PinNumber;
 
 
-	}*/
+	}
 
 
 }
@@ -298,35 +306,49 @@ void GPIO_ToggleOutputPin(Gpio_struct *pGPIOx,uint8_t PinNumber){
 }
 
 
-/*
+
 //4. IRQ HANDLER AND CONFIG
 
-void GPIO_IRQConifg(uint8_t IRQNum, uint8_t IRQPriority,uint8_t EnOrDis ){
+void GPIO_IRQConifg(uint8_t IRQNum,uint8_t EnOrDis ){
 
+	uint8_t reg_select2= IRQNum/32;
+	uint8_t pin_select2= IRQNum%32;
 	if (EnOrDis==ENABLE)
 	{
-		if (IRQNum <=31)
-		{
-			NVIC_ISER0|=(1<<IRQNum);
-
-		}else if (IRQNum>31 && IRQNum<64)
-
-		{
-			NVIC_ISER1|=(1<<IRQNum%32);
-		}else if (IRQNum> 64 && IRQNum< 96)
-		{
-			NVIC_ISER3|=(1<<IRQNum%64);
-		}
-
+	 NVIC->ISER[reg_select2]|=((0x1)<<pin_select2);
+	}
+	else
+	{
+	 NVIC->ICER[reg_select2]|=((0x1)<<pin_select2);
 	}
 
 }
+
+void IRQ_Priority_Config(uint8_t IRQNum,uint8_t IRQPriority)
+{
+	uint8_t reg_select3=IRQNum/4;
+	uint8_t pin_select3=IRQNum%4;
+
+
+	uint32_t mask=(0xFF<<(pin_select3*8));
+	uint32_t temp=IRQPriority<<((pin_select3*8));
+
+	NVIC->IPR[reg_select3]&=~(mask);
+	NVIC->IPR[reg_select3]|=temp;
+}
+
+
 void GPIO_IRQHandler(uint8_t PinNumber){
+
+	if (EXTI->PR&(1<<PinNumber))
+	{
+	EXTI->PR|=(0X1<<PinNumber);
+	}
+
 
 }
 
 
-*/
 
 
 

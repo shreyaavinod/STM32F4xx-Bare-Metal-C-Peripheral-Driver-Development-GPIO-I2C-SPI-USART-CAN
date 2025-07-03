@@ -128,20 +128,6 @@ typedef struct{
 #define SPI_FRE_FLAG    (1<<SPI_SR_FRE)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 uint8_t Get_Flag_Status(SPI_struct *pSPIx, uint32_t FlagName);
 
 /*
@@ -173,8 +159,8 @@ void SPI_Receivedata(SPI_struct *pSPIx, uint8_t *pRXBuffer, uint32_t len);
 
 // SPI TRANSMIT AND RECEIVE BY INTERRUPT /NON BLOCKING
 
-void SPI_IRQInterruptConfig();
-void SPI_IRQPriorityConfig();
+void SPI_IRQInterruptConfig(uint8_t IRQNum, uint8_t EnOrDis) ;
+void SPI_IRQPriorityConfig(uint8_t IRQNum, uint32_t IRQPriority) ;
 void SPI_IRQHandler();
 
 
