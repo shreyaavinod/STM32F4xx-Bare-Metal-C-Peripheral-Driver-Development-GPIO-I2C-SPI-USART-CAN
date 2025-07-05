@@ -5,6 +5,11 @@
 
 #include "stm32f446xx.h"
 #include "stm32f446xx_spi_driver.h"
+#include <stddef.h>
+
+static void spi_TXEinterrupt_handle(SPI_handle_t *pSPIHandle);
+static void spi_RXNEinterrupt_handle(SPI_handle_t *pSPIHandle);
+static void spi_OVRinterrupt_handle(SPI_handle_t *pSPIHandle);
 
 
 //STRUCTS DEFINED IN .h
@@ -30,9 +35,91 @@ typedef struct{
 
 }SPI_handle_t;*/
 
+static void spi_TXEinterrupt_handle(SPI_handle_t *pSPIHandle){
+
+		if(pSPIHandle->pSPIx->CR1 & (1<<SPI_CR1_DFF))
+		{
+			pSPIHandle->pSPIx->DR=*((uint16_t *)pSPIHandle->SPI_TXBuffer);
+			pSPIHandle->SPI_TXLen--;
+			pSPIHandle->SPI_TXLen--;
+
+			pSPIHandle->SPI_TXBuffer+=2;
+		}
+		else
+		{
+			pSPIHandle->pSPIx->DR=*(pSPIHandle->SPI_TXBuffer);
+			pSPIHandle->SPI_TXLen--;
+			pSPIHandle->SPI_TXBuffer+=1;
+		}
+
+	if(pSPIHandle->SPI_TXLen==0)
+	{
+		SPI_CloseTransmission(pSPIHandle);
+		SPI_ApplicationCallBack(pSPIHandle,SPI_EVNT_TX_CMPLT);
+	}
+
+}
+
+static void spi_RXNEinterrupt_handle(SPI_handle_t *pSPIHandle){
+	if(pSPIHandle->pSPIx->CR1 &(1<<SPI_CR1_DFF))
+	{
+		*((uint16_t *)pSPIHandle->SPI_RXBuffer)=pSPIHandle->pSPIx->DR;
+		pSPIHandle->SPI_RXBuffer+=2;
+		pSPIHandle->SPI_RXLen--;
+		pSPIHandle->SPI_RXLen--;
+	}
+	else
+	{
+			*(pSPIHandle->SPI_RXBuffer)=pSPIHandle->pSPIx->DR;
+			pSPIHandle->SPI_RXBuffer+=1;
+			pSPIHandle->SPI_RXLen--;
+	}
+	if(pSPIHandle->SPI_RXLen==0)
+	{
+		SPI_CloseReception(pSPIHandle);
+		SPI_ApplicationCallBack(pSPIHandle,SPI_EVNT_RX_CMPLT);
+
+
+	}
+
+}
+
+static void spi_OVRinterrupt_handle(SPI_handle_t *pSPIHandle){
+
+	uint8_t temp;
+	if(pSPIHandle->SPI_TXState!=SPI_STATE_BUSY_IN_TX)///DURING RECEPTION THE OVERRUN ERROR OCCURS
+	{
+		temp=pSPIHandle->pSPIx->DR;
+		temp=pSPIHandle->pSPIx->SR;
+
+	}
+	(void) temp;
+	SPI_ApplicationCallBack(pSPIHandle,SPI_EVNT_OVR_ERROR);
+
+	//IF DURING TRANSMISSION OVERRUN OCCURS CLEAR OVERRUN IN APPLICATION.
+
+}
+
+
+void SPI_CloseTransmission(SPI_handle_t *pSPIHandle)
+{
+	pSPIHandle->pSPIx->CR2 &=~(1<<SPI_CR2_TXEIE);
+			pSPIHandle->SPI_TXBuffer=NULL;
+			pSPIHandle->SPI_TXState=SPI_STATE_READY;
+			pSPIHandle->SPI_TXLen=0;
+}
+void SPI_CloseReception(SPI_handle_t *pSPIHandle)
+{
+	pSPIHandle->pSPIx->CR2 &=~(1<<SPI_CR2_RXNEIE);
+		pSPIHandle->SPI_RXBuffer=NULL;
+		pSPIHandle->SPI_RXLen=0;
+		pSPIHandle->SPI_RXState=SPI_STATE_READY;
+}
+
+
 uint8_t Get_Flag_Status(SPI_struct *pSPIx, uint32_t FlagName)
 {
-	if (pSPIx->SR & FlagName==0)
+	if ((pSPIx->SR & FlagName)==0)
 		return FLAG_RESET;
 	else
 		return FLAG_SET;
@@ -261,18 +348,112 @@ void SPI_Receivedata(SPI_struct *pSPIx, uint8_t *pRXBuffer, uint32_t len)
 
 // SPI TRANSMIT AND RECEIVE BY INTERRUPT /NON BLOCKING
 
-void SPI_IRQInterruptConfig(uint8_t IRQNum, uint8_t EnOrDis)
+//SPI TRANSMIT AND RECEIVE BY INTERRUPT MODE
+uint8_t SPI_TransmitdataIT(SPI_handle_t *pSPIHandle, uint8_t *pTXBuffer, uint32_t len){
 
-{
+	uint8_t state=pSPIHandle->SPI_TXState;
+
+	if(state!=SPI_STATE_BUSY_IN_TX)
+	{
+		pSPIHandle->SPI_TXBuffer=pTXBuffer;
+			pSPIHandle->SPI_TXLen=len;
+			//bsy state ;
+			pSPIHandle->SPI_TXState=SPI_STATE_BUSY_IN_TX;
+			//TXEIE
+			pSPIHandle->pSPIx->CR2|=(1<<SPI_CR2_TXEIE);
+
+	}
+	return state;
 
 }
-void SPI_IRQPriorityConfig(uint8_t IRQNum, uint32_t IRQPriority)
 
-{
+uint8_t SPI_ReceivedataIT(SPI_handle_t *pSPIHandle, uint8_t *pRXBuffer, uint32_t len){
+	uint8_t state=pSPIHandle->SPI_RXState;
+
+		if(state!=SPI_STATE_BUSY_IN_RX)
+		{
+			pSPIHandle->SPI_RXBuffer=pRXBuffer;
+				pSPIHandle->SPI_RXLen=len;
+				//bsy state ;
+				pSPIHandle->SPI_RXState=SPI_STATE_BUSY_IN_RX;
+				//TXEIE
+				pSPIHandle->pSPIx->CR2|=(1<<SPI_CR2_RXNEIE);
+				//IRQ HANDLER
+		}
+		return state;
+}
+
+
+///IRQ
+
+void SPI_IRQInterruptConfig(uint8_t IRQNum,uint8_t EnOrDis ){
+
+	uint8_t reg_select2= IRQNum/32;
+	uint8_t pin_select2= IRQNum%32;
+	if (EnOrDis==ENABLE)
+	{
+	 NVIC->ISER[reg_select2]|=((0x1)<<pin_select2);
+	}
+	else
+	{
+	 NVIC->ICER[reg_select2]|=((0x1)<<pin_select2);
+	}
 
 }
-void SPI_IRQHandler()
-{
 
+void SPI_IRQPriorityConfig(uint8_t IRQNum,uint8_t IRQPriority)
+{
+	uint8_t reg_select3=IRQNum/4;
+	uint8_t pin_select3=IRQNum%4;
+
+
+	uint32_t mask=(0xFF<<(pin_select3*8));
+	uint32_t temp=IRQPriority<<((pin_select3*8));
+
+	NVIC->IPR[reg_select3]&=~(mask);
+	NVIC->IPR[reg_select3]|=temp;
+}
+
+void SPI_IRQHandler(SPI_handle_t* pSPIhandle)
+{
+//This is called whenever an interrupt occurs.
+	//CHcek for TXE
+	uint8_t temp1=pSPIhandle->pSPIx->SR &(1<<SPI_SR_TXE);
+	uint8_t temp2=pSPIhandle->pSPIx->CR2&(1<<SPI_CR2_TXEIE);
+
+	if(temp1 && temp2)
+	{
+		spi_TXEinterrupt_handle(pSPIhandle);
+	}
+
+	temp1=pSPIhandle->pSPIx->SR &(1<<SPI_SR_RXNE);
+	temp2=pSPIhandle->pSPIx->CR2&(1<<SPI_CR2_RXNEIE);
+
+	if(temp1 && temp2)
+	{
+		spi_RXNEinterrupt_handle(pSPIhandle);
+	}
+	temp1=pSPIhandle->pSPIx->SR &(1<<SPI_SR_OVR);
+	temp2=pSPIhandle->pSPIx->CR2&(1<<SPI_CR2_ERRIR);
+
+	if(temp1 && temp2)
+	{
+		spi_OVRinterrupt_handle(pSPIhandle);
+	}
+
+}
+
+
+void SPI_ClearOVRFlag(SPI_struct *pSPIx){
+uint8_t temp;
+temp=pSPIx->DR;
+temp=pSPIx->SR;
+(void) temp;
+}
+
+
+
+__weak void SPI_ApplicationCallBack(SPI_handle_t* pSPIHandle,uint8_t APPEV){
+	//weak implmentatiom of application call back
 }
 

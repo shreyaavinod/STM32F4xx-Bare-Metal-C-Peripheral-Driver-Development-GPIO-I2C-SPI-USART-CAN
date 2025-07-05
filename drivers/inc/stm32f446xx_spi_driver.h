@@ -30,6 +30,13 @@ typedef struct{
 	SPI_struct *pSPIx; //////Gives peripheral base address of SPI MODE/ PERIPHERAL - SPI1,2,3,4
 	SPI_Config_struct SPI_Config; ///SPI user configurable data items
 
+	uint8_t * SPI_TXBuffer;
+	uint8_t * SPI_RXBuffer;
+	uint32_t  SPI_TXLen;
+	uint32_t  SPI_RXLen;
+	uint8_t  SPI_TXState;
+	uint8_t  SPI_RXState;
+
 
 }SPI_handle_t;
 
@@ -75,6 +82,11 @@ typedef struct{
 
 #define SPI_SSM_DI	0
 #define SPI_SSM_EN 	1
+
+
+#define SPI_STATE_BUSY_IN_TX	1
+#define SPI_STATE_BUSY_IN_RX	2
+#define SPI_STATE_READY			0
 
 /****************************************************************************************
  ********************* SPI PERIPHERAL REGISTERS BIT DEFINITION MACROS *******************
@@ -127,6 +139,14 @@ typedef struct{
 #define SPI_BSY_FLAG    (1<<SPI_SR_BSY)
 #define SPI_FRE_FLAG    (1<<SPI_SR_FRE)
 
+//APPLICATION VENT MACROS
+
+#define SPI_EVNT_TX_CMPLT 1
+#define SPI_EVNT_RX_CMPLT 2
+#define SPI_EVNT_OVR_ERROR 3
+
+
+
 
 uint8_t Get_Flag_Status(SPI_struct *pSPIx, uint32_t FlagName);
 
@@ -157,11 +177,23 @@ void SPI_Transmitdata(SPI_struct *pSPIx, uint8_t *pTXBuffer, uint32_t len);
 
 void SPI_Receivedata(SPI_struct *pSPIx, uint8_t *pRXBuffer, uint32_t len);
 
+//SPI TRANSMIT AND RECEIVE BY INTERRUPT MODE
+uint8_t SPI_TransmitdataIT(SPI_handle_t *pSPIHandle, uint8_t *pTXBuffer, uint32_t len);
+
+uint8_t SPI_ReceivedataIT(SPI_handle_t *pSPIHandle, uint8_t *pRXBuffer, uint32_t len);
+
 // SPI TRANSMIT AND RECEIVE BY INTERRUPT /NON BLOCKING
 
 void SPI_IRQInterruptConfig(uint8_t IRQNum, uint8_t EnOrDis) ;
-void SPI_IRQPriorityConfig(uint8_t IRQNum, uint32_t IRQPriority) ;
-void SPI_IRQHandler();
+void SPI_IRQPriorityConfig(uint8_t IRQNum, uint8_t IRQPriority) ;
+void SPI_IRQHandler(SPI_handle_t* pSPIhandle);
+
+void SPI_ClearOVRFlag(SPI_struct *pSPIx);
+void SPI_CloseTransmission(SPI_handle_t *pSPIHandle);
+void SPI_CloseReception(SPI_handle_t *pSPIHandle);
+void SPI_ApplicationCallBack(SPI_handle_t* pSPIHandle,uint8_t APPEV);
+
+
 
 
 

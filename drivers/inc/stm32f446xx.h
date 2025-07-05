@@ -10,6 +10,7 @@
 #ifndef DRIVERS_INC_STM32F446XX_H_
 #define DRIVERS_INC_STM32F446XX_H_
 #define __vo volatile
+#define __weak __attribute((weak))
 
 //irq number MACROS
 #define IRQ_NUM_EXTI0  	6
@@ -322,28 +323,6 @@ typedef struct {
 #define RESET DISABLE
 #define FLAG_RESET DISABLE
 #define FLAG_SET ENABLE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif /* DRIVERS_INC_STM32F446XX_H_ */
