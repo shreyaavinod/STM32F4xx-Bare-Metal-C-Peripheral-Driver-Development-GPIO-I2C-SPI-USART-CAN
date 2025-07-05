@@ -1,6 +1,6 @@
-# STM32F4xx Peripheral Driver Development (Bare-Metal C)
+# STM32F446xx Peripheral Driver Development (Bare-Metal C)
 
-This project is a custom driver development framework for STM32F4xx microcontrollers using **bare-metal C**. It is built entirely from scratch without relying on STM32 HAL or LL libraries. The goal is to gain low-level control and deep understanding of how hardware peripherals work by programming directly with memory-mapped registers.
+This project is a custom driver development framework for STM32F446xx microcontrollers using **bare-metal C**. It is built entirely from scratch without relying on STM32 HAL or LL libraries. The goal is to gain low-level control and deep understanding of how hardware peripherals work by programming directly with memory-mapped registers.
 
 Currently, the project implements **GPIO** and **SPI DRIVERS**,and will be extended to include **I2C**, **USART**, and **CAN** drivers.
 
@@ -17,21 +17,21 @@ Currently, the project implements **GPIO** and **SPI DRIVERS**,and will be exten
   - Reset GPIO ports
  
 - ✅ Implementation of **SPI Peripheral** Driver
-  - Configuring the SPI Peripheral
-        - Mode - Master/Slave
-        - Bus Configuration - Full/Half Duplex communication
-        - Data Frame Format - 16 BITS/ 8 BITS 
-        - Slave Select Management - Software slave select ENABLE or DISABLE
-        - CPOL - HGH or LOW select 
-        - CPHA - Hign or LOW select
-        - MASTER SCLK Pre-Scalar select
-  - Transmission and Reception of DATA
-        - Polling MODE 
-        - Interrupt Mode 
-  - Interrupt handling 
-        - TXE Interrupt 
-        - RXNE Interrupt 
-        - OVR Interrupt 
+- Configuring the SPI Peripheral
+  - Mode - Master/Slave
+  - Bus Configuration - Full/Half Duplex communication
+  - Data Frame Format - 16 BITS/ 8 BITS 
+  - Slave Select Management - Software slave select ENABLE or DISABLE
+  - CPOL - HGH or LOW select 
+  - CPHA - Hign or LOW select
+  - MASTER SCLK Pre-Scalar select
+- Transmission and Reception of DATA
+  - Polling MODE 
+  - Interrupt Mode 
+- Interrupt handling 
+  - TXE Interrupt 
+  - RXNE Interrupt 
+  - OVR Interrupt 
 
 - 🚧 Upcoming Drivers:
   - I2C
